@@ -1,0 +1,26 @@
+{
+  "name": "steam-bot-manager",
+  "version": "1.0.0",
+  "description": "Manage multiple Steam bots",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebmorris/steam-bot-manager.git"
+  },
+  "author": "Seb Morris (https://steamcommunity.com/id/oattty/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sebmorris/steam-bot-manager/issues"
+  },
+  "homepage": "https://github.com/sebmorris/steam-bot-manager#readme",
+  "dependencies": {
+    "steam-inventory-api": "^1.0.3",
+    "steam-totp": "^1.4.0",
+    "steam-tradeoffer-manager": "^2.5.0",
+    "steam-user": "^3.14.0",
+    "steamcommunity": "^3.30.1"
+  }
+}
