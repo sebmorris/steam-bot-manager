@@ -31,6 +31,7 @@ BotManager.prototype.addBot = function(loginDetails, managerEvents, retries) {
    return new Promise((resolve, reject) => {
 		if (managerEvents) {
          managerEvents.forEach((event) => { manager.on(event.name, event.cb); });
+         console.log('Set manager events:\n\t- ' + managerEvents.map((event) => event.name));
       }
 
       loginDetails.twoFactorCode = SteamTotp.getAuthCode(loginDetails.shared);
@@ -64,16 +65,13 @@ BotManager.prototype.addBot = function(loginDetails, managerEvents, retries) {
 	});
 };
 
-BotManager.prototype.loadInventories = function(appid, contextid, tradableOnly, botIndex) {
+BotManager.prototype.loadInventories = function(appid, contextid, tradableOnly) {
 	return Promise.all(this.bots.map((bot, i) => {
-		if (!botIndex || i === botIndex) {
-			return SteamInventoryAPI.getInventory(bot.steamid, appid, contextid, tradableOnly)
-			.then((inventory) => {
-				inventory.forEach((item) => item.botIndex = i);
-				return inventory;
-			});
-		}
-		return [];
+		return SteamInventoryAPI.getInventory(bot.steamid, appid, contextid, tradableOnly)
+		.then((inventory) => {
+			inventory.forEach((item) => item.botIndex = i);
+			return inventory;
+		});
 	}))
 	.then((inventories) => {
 		return inventories.concat.apply([], inventories);
@@ -87,34 +85,30 @@ BotManager.prototype.addJob = function(job) {
 
 BotManager.prototype.processJobs = function(jobsToProcess) {
    if (!jobsToProcess) jobsToProcess = 1;
+	let jobProcesses = [];
    for (let i = 0; i < jobsToProcess; i++) {
-      return this.processJob(this.botJobs.shift());
+      jobProcesses.push(this.processJob(this.botJobs.shift()));
    }
+	return jobProcesses;
 };
 
 BotManager.prototype.processJob = function(options) {
-	let	type = options.type,
-			multi = options.multi,
-			constraints = options.constraints,
-			args = options.args,
-			fn = options.fn,
-			bots = options.bots;
-
-	//let {type, multi, constraints, args, fn, bots} = options;
+	({type, multi, constraints, args, fn, bots} = options);
 
 	return new Promise((resolve, reject) => {
 		if (!options) reject('Job options not set');
 
 		console.log('New job:\n\t-', type, bots, multi, constraints);
 
-		//Get an array of bots, which can do the job
+		//Get an array of bot indexes, which are permitted to do the job
 		if (!bots) bots = this.bots.map((bot) => bot.botIndex);
 		else if (typeof bots === number) bots = [bots];
 		else if (!Array.isArray(bots)) throw 'options.bots is not in a valid format';
-
+		//Test constraints for bots permitted
 		if (constraints) {
 			bots = bots.filter((botIndex) => {
 				return constraints.reduce((prev, constraintName) => {
+					console.log('Testing',constraintName,'The result was:', this.testConstraint(constraintName, args, botIndex));
 					return this.testConstraint(constraintName, args, botIndex) && prev;
 				}, true);
 			});
@@ -126,10 +120,12 @@ BotManager.prototype.processJob = function(options) {
 
 		let botObjects;
 		if (!multi) botObjects = this.bots[bots[0]];
-		else botObjects = bots.map((botIndex) => { this.bots[botIndex] });
+		else botObjects = bots.map((botIndex) => this.bots[botIndex]);
+		console.log('botObjects', botObjects);
+		console.log('job method starts here');
 		resolve(botObjects);
 	})
-	.then((botObjects) => fn(args, botObjects))
+	.then((botObjects) => Promise.resolve(fn(args, botObjects)))
 	.then((res) => {
 		console.log('A job of type: ' + type + ' just completed\n\t- ' + res);
 		if (bots && constraints) {
@@ -137,8 +133,8 @@ BotManager.prototype.processJob = function(options) {
 	 			constraints.forEach((constraintName) => {
 	 				let constraint = this.jobConstraints[constraintName];
 	 				if (constraint) {
-	 					if (constraint.jobSucceededChange(args) !== undefined)
-	 						constraint.botConstraintValues[botIndex] += constraint.jobSucceededChange(args);
+	 					if (constraint.succeededChange(args) !== undefined)
+	 						constraint.botConstraintValues[botIndex] += constraint.succeededChange(args);
 	 				}
 				});
 			});
@@ -150,8 +146,8 @@ BotManager.prototype.processJob = function(options) {
  			constraints.forEach((constraintName) => {
  				let constraint = this.jobConstraints[constraintName];
  				if (constraint) {
- 					if (constraint.jobFailedChange(args) !== undefined)
- 						constraint.botConstraintValues[botIndex] += constraint.jobFailedChange(args);
+ 					if (constraint.failedChange(args) !== undefined)
+ 						constraint.botConstraintValues[botIndex] += constraint.failedChange(args);
  				}
 			});
 		});
@@ -159,22 +155,16 @@ BotManager.prototype.processJob = function(options) {
 	});
 };
 
-BotManager.prototype.addJobConstraint = function(options) {
-	let	name = options.name,
-			initialConstraintValue = options.initialConstraintValue,
-			jobFailedChange = options.jobFailedChange,
-			jobSucceededChange = options.jobSucceededChange,
-			testConstraint = options.testConstraint;
-			if (!name) throw 'options.name not set';
-
+BotManager.prototype.addJobConstraint = function({name, initialValue, failedChange, succeededChange, testConstraint}) {
+	if (!name) throw 'options.name not set';
 	if (!testConstraint) throw 'options.testConstraint not set';
-	if (!jobSucceededChange && !jobFailedChange) throw 'neither options.jobSucceededChange or options.jobFailedChange are defined';
-	if (!initialConstraintValue) throw 'options.initialConstraintValue not set';
+	if (!succeededChange && !failedChange) throw 'neither options.succeededChange or options.failedChange are defined';
+	if (!initialValue) throw 'options.initialValue not set';
 
 	this.jobConstraints[name] = {
-		initialConstraintValue: initialConstraintValue,
-		jobFailedChange: jobFailedChange,
-		jobSucceededChange: jobSucceededChange,
+		initialValue: initialValue,
+		failedChange: failedChange,
+		succeededChange: succeededChange,
 		testConstraint: testConstraint,
 		botConstraintValues: []
 	};
@@ -188,17 +178,16 @@ BotManager.prototype.testConstraint = function(constraintName, args, botIndex) {
 	let botConstraintValues = this.jobConstraints[constraintName].botConstraintValues;
 	if (botIndex && botConstraintValues[botIndex]) {
 		return constraintTest(this.bots[botIndex], botConstraintValues[botIndex], args);
-	} else if (botIndex) {
-		botConstraintValues[botIndex] = this.jobConstraints[constraintName].initialConstraintValue(bot);
-		console.log(botConstraintValues[botIndex]);
+	} else if (botIndex !== undefined) {
+		botConstraintValues[botIndex] = this.jobConstraints[constraintName].initialValue(botIndex);
 		return constraintTest(this.bots[botIndex], botConstraintValues[botIndex], args);
 	} else {
 		return this.bots.map((bot, i) => {
 			if (!botConstraintValues[i]) {
-				botConstraintValues[botIndex] = this.jobConstraints[constraintName].initialConstraintValue(bot);
+				botConstraintValues[botIndex] = this.jobConstraints[constraintName].initialValue(botIndex);
 			}
-			return constraintTest(bot, botConstraintValues[i], args);
-		});
+			return constraintTest(bot, botConstraintValues[i], args) ? i : undefined;
+		}).filter((val) => val !== undefined);
 	}
 };
 
