@@ -7,8 +7,8 @@ const botManager = new BotManager();
 ```
 ## Adding bots
 #### addBot
-
 Logs a bot into Steam. Returns a promise.
+
 1. loginDetails: an object with
    * *accountName*: the account username
    * *password*: the account password
@@ -20,8 +20,8 @@ Logs a bot into Steam. Returns a promise.
 
 ## Bot settings
 #### addJobConstraint
+Adds a test which is run every time the bot is considered for a job.
 
-Adds a test which is run every time the bot is considered for a job.    
 1. jobConstraint:  an object with:
    * *name*: the name of the job constraint
    * *initialValue*: a function, which should return a number
@@ -36,7 +36,6 @@ Adds a test which is run every time the bot is considered for a job.
 
 ## Bot job processing
 #### addJob
-
 Adds a job to the bots' job queue.
 1. job: an object with:
   * *type*: the job type (for logging)
@@ -49,12 +48,10 @@ Adds a job to the bots' job queue.
     2. (depending on multi) an array of bot objects, or a single bot object
 
 #### processJobs
-
 Processes a job(s) from the queue. First in first out system. Returns an array of job process promises.
 1. number of jobs to process
 
 #### processJob
-
 Can be called directly with a job object. Returns a single promise for the job completing.
 1. job: an object with:
   * *type*: the job type (for logging)
@@ -67,13 +64,11 @@ Can be called directly with a job object. Returns a single promise for the job c
     2. (depending on multi) an array of bot objects, or a single bot object
 
 #### setConstraintValues
-
 Set all of the constraint values for a job constraint. Useful for resetting bot recent requests or similar.  
 1. name of the job constraint
 2. value of the job constraint
 
 #### testConstraint
-
 Test whether specified bots would be able to perform the specified job. Returns either a true/false value if bot index is defined, or an array of permitted bot indexes otherwise.  
 1. constraint name
 2. job args to be tested
@@ -81,14 +76,11 @@ Test whether specified bots would be able to perform the specified job. Returns 
 
 ## Misc
 #### botIndexFromSteamid
-
 Get the botIndex of a bot from its Steam id. Returns a botIndex.
 1. Steam id 64
 
 #### numberOfBotsLoggedIn
-
 Returns the number of logged in bots.
 
 #### openJobs
-
 Returns the number of jobs in the queue.
