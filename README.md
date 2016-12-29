@@ -62,12 +62,12 @@ Can be called directly with a job object. Returns a single promise for the job c
     2. (depending on multi) an array of bot objects, or a single bot object
 
 #### setConstraintValues
-Set all of the constraint values for a job constraint. Useful for resetting bot recent requests or similar.
+Set all of the constraint values for a job constraint. Useful for resetting bot recent requests or similar.  
 1. name of the job constraint
 2. value to set the job constraint values of all the bots to
 
 #### testConstraint
-Test whether specified bots would be able to perform the specified job. Returns either a true/false value if bot index is defined, or an array of permitted bot indexes otherwise.
+Test whether specified bots would be able to perform the specified job. Returns either a true/false value if bot index is defined, or an array of permitted bot indexes otherwise.  
 1. constraint name
 2. job args to be tested
 3. bot index. If not provided an array of permitted bot indexes is returned
