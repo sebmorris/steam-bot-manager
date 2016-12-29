@@ -9,28 +9,28 @@ const botManager = new BotManager();
 #### addBot
 Logs a bot into Steam. Returns a promise.
 1. loginDetails: an object with
-  * *accountName*: the account username
-  * *password*: the account password
-  * *shared*: the account's shared secret
-  * *identity*: the account's identity secret
+   * *accountName*: the account username
+   * *password*: the account password
+   * *shared*: the account's shared secret
+   * *identity*: the account's identity secret
 2. botEvents: an array of objects containing bot events. The objects have:
-  * *name*: name of the event (same as node-tradeoffer-manager event names)
-  * *cb*: the function to be called when the event triggers
+   * *name*: name of the event (same as node-tradeoffer-manager event names)
+   * *cb*: the function to be called when the event triggers
 
 ## Bot settings
 #### addJobConstraint
 Adds a test which is run every time the bot is considered for a job.
 1. jobConstraint:  an object with:
-  * *name*: the name of the job constraint
-  * *initialValue*: a function, which should return a number
-  * *testConstraint*: a function, which should return true or false, depending on whether a bot is permitted to perform the job it is called with. Called with:
-    1. bot object
-    2. current constraint value
-    3. args for the job
-  * *failedChange*: a function, which should return a number to increment the internally stored constraint value upon job failure. Called with:
-    1. the args parameter passed to addJob
-  * *succeededChange*: a function, which should return a number to increment the internally stored constraint value upon job success. Called with:
-    1. the args parameter passed to addJob
+   * *name*: the name of the job constraint
+   * *initialValue*: a function, which should return a number
+   * *testConstraint*: a function, which should return true or false, depending on whether a bot is permitted to perform the job it is called with. Called with:
+     1. bot object
+     2. current constraint value
+     3. args for the job
+   * *failedChange*: a function, which should return a number to increment the internally stored constraint value upon job failure. Called with:
+     1. the args parameter passed to addJob
+   * *succeededChange*: a function, which should return a number to increment the internally stored constraint value upon job success. Called with:
+     1. the args parameter passed to addJob
 
 ## Bot job processing
 #### addJob
