@@ -90,3 +90,14 @@ Returns the number of logged in bots.
 
 #### openJobs
 Returns the number of jobs in the queue.
+
+#### botObjectFromIndex
+Takes a botIndex. Returns a bot object with:
+
+* *client*: a Steam client object
+* *manager*: a Steam manager object
+* *community*: a Steam community object
+* *loginInfo*: the bot's login info
+* *apiKey*: the bot's API key
+* *steamid*: the bot's Steam 64 id
+* *botIndex*: the bot's index
