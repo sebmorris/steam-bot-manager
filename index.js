@@ -53,8 +53,6 @@ BotManager.prototype.addBot = function(loginDetails, managerEvents, retries) {
 					manager: manager,
 					community: community,
 					loginInfo: loginDetails,
-					keysOwned: 0,
-					recentRequests: 0,
 					apiKey: manager.apiKey,
 					steamid: client.steamID.getSteamID64(),
 					botIndex: this.bots.length
