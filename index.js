@@ -121,8 +121,6 @@ BotManager.prototype.processJob = function(options) {
 		let botObjects;
 		if (!multi) botObjects = this.bots[bots[0]];
 		else botObjects = bots.map((botIndex) => this.bots[botIndex]);
-		console.log('botObjects', botObjects);
-		console.log('job method starts here');
 		resolve(botObjects);
 	})
 	.then((botObjects) => Promise.resolve(fn(args, botObjects)))
