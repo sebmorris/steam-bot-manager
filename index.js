@@ -209,4 +209,8 @@ BotManager.prototype.numberOfBotsLoggedIn = function() {
 	return this.bots.length;
 };
 
+BotManager.prototype.botObjectFromIndex = function (botIndex) {
+	return this.bots[botIndex];
+}
+
 module.exports = BotManager;
