@@ -32,15 +32,15 @@ const botConstraints = [{
 const botManager = new BotManager();
 botConstraints.forEach((constraint) => botManager.addJobConstraint(constraint));
 botManager.addBot({
-		accountName: '',
-		password: '',
-		shared: '',
-		identity: ''
-	}, defaultBotEvents)
-	.then((loginRes) => {
-		console.log(loginRes);
-		console.log('Waiting for new tradeoffers');
-	})
-	.catch((err) => {
-		console.log(err);
-	});
+	accountName: '',
+	password: '',
+	shared: '',
+	identity: ''
+}, defaultBotEvents)
+.then((loginRes) => {
+	console.log(loginRes);
+	console.log('Waiting for new tradeoffers');
+})
+.catch((err) => {
+	console.log(err);
+});
