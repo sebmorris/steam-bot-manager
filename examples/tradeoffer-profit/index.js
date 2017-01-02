@@ -15,12 +15,8 @@ const defaultBotEvents = [{
 			},
 			//Get the steamid of the bot, which received the offer and use it to get the appropriate botIndex
 			bots: [botManager.botIndexFromSteamid(offer.manager.steamID.getSteamID64())],
-			fn: (args, bot) => {
-				if (args && args.offer) return void args.offer.accept() || 'A new offer was accepted';
-				return Promise.reject('No offer object');
-			}
+			fn: (args, bot) => void args.offer.accept() || 'A new offer was accepted'
 		});
-		offer.decline();
 	}
 }];
 const botConstraints = [{
