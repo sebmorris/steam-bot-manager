@@ -90,12 +90,8 @@ BotManager.prototype.processJobs = function(jobsToProcess) {
 	return jobProcesses;
 };
 
-BotManager.prototype.processJob = function(options) {
-	({type, multi, constraints, args, fn, bots} = options);
-
+BotManager.prototype.processJob = function({type, multi, constraints, args, fn, bots}) {
 	return new Promise((resolve, reject) => {
-		if (!options) reject('Job options not set');
-
 		console.log('New job:\n\t-', type, bots, multi, constraints);
 
 		//Get an array of bot indexes, which are permitted to do the job
