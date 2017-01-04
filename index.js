@@ -96,13 +96,13 @@ BotManager.prototype.processJob = function({type, multi, constraints, args, fn, 
 
 		//Get an array of bot indexes, which are permitted to do the job
 		if (!bots) bots = this.bots.map((bot) => bot.botIndex);
-		else if (typeof bots === number) bots = [bots];
+		else if (typeof bots == 'number') bots = [bots];
 		else if (!Array.isArray(bots)) throw 'options.bots is not in a valid format';
 		//Test constraints for bots permitted
 		if (constraints) {
 			bots = bots.filter((botIndex) => {
 				return constraints.reduce((prev, constraintName) => {
-					console.log('Testing',constraintName,'The result was:', this.testConstraint(constraintName, args, botIndex));
+					console.log('Testing',constraintName+'. The result was:', this.testConstraint(constraintName, args, botIndex));
 					return this.testConstraint(constraintName, args, botIndex) && prev;
 				}, true);
 			});
@@ -134,7 +134,7 @@ BotManager.prototype.processJob = function({type, multi, constraints, args, fn, 
 	})
 	.catch((err) => {
 		console.log('There was an error completing a job of type: ' + type + '\n\t- ' + err);
-		botArray.forEach((botIndex) => {
+		bots.forEach((botIndex) => {
  			constraints.forEach((constraintName) => {
  				let constraint = this.jobConstraints[constraintName];
  				if (constraint) {
