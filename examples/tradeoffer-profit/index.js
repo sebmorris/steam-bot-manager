@@ -1,4 +1,4 @@
-//TODO: THIS IS WIP - HAS NOT BEEN TESTED (yet)
+//TODO: *still wip*
 'use strict';
 //Replace this with `const BotManager = require('steam-bot-manager');`
 const BotManager = require('../../index.js');
@@ -16,6 +16,10 @@ const defaultBotEvents = [{
 			//Get the steamid of the bot, which received the offer and use it to get the appropriate botIndex
 			bots: [botManager.botIndexFromSteamid(offer.manager.steamID.getSteamID64())],
 			fn: (args, bot) => void args.offer.accept() || 'A new offer was accepted'
+		})
+		.catch((err) => {
+			console.log(err, '\nDeclining offer');
+			offer.decline();
 		});
 	}
 }];
@@ -25,17 +29,17 @@ const botConstraints = [{
 	initialValue: () => 0,
 	//TODO: Value the items, check the bots items are worth less (use some pricing API)
 	//Currently just checks the bot is receiving more items that it is giving
-	testConstraint: (bot, val, args) => args.offer.itemsToReceive.length > args.offer.itemsToGive.length;,
+	testConstraint: (bot, val, args) => args.offer.itemsToReceive.length > args.offer.itemsToGive.length,
 	failedChange: (args) => void args.offer.decline(),
 	succeededChange: () => 1
 }];
 const botManager = new BotManager();
 botConstraints.forEach((constraint) => botManager.addJobConstraint(constraint));
 botManager.addBot({
-	accountName: '',
-	password: '',
-	shared: '',
-	identity: ''
+   accountName: '',
+   password: '',
+   shared: '',
+   identity: ''
 }, defaultBotEvents)
 .then((loginRes) => {
 	console.log(loginRes);
