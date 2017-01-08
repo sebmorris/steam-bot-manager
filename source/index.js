@@ -30,7 +30,7 @@ BotManager.prototype.addBot = function(loginDetails, managerEvents, retries) {
 	let community = new SteamCommunity();
    return new Promise((resolve, reject) => {
 		if (managerEvents) {
-         managerEvents.forEach((event) => { manager.on(event.name, event.cb); });
+         managerEvents.forEach((event) => manager.on(event.name, event.cb));
          console.log('Set manager events:\n\t- ' + managerEvents.map((event) => event.name));
       }
 
