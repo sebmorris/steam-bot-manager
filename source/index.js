@@ -48,7 +48,7 @@ BotManager.prototype.addBot = function(loginDetails, managerEvents, retries) {
 		return new Promise((resolve, reject) => {
 			manager.setCookies(cookies, (err) => {
 				if (err) reject(err);
-				this.bots.push({
+				const botArrayLength = this.bots.push({
 					client: client,
 					manager: manager,
 					community: community,
@@ -57,7 +57,7 @@ BotManager.prototype.addBot = function(loginDetails, managerEvents, retries) {
 					steamid: client.steamID.getSteamID64(),
 					botIndex: this.bots.length
 				});
-				resolve('A bot ('+client.steamID.getSteamID64()+') has been completely logged in');
+				resolve(this.bots[botArrayLength - 1]);
 			});
 		});
 	});
