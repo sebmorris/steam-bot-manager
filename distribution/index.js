@@ -18,7 +18,7 @@ var BotManager = function BotManager(options) {
 	this.jobConstraints = {};
 };
 
-BotManager.prototype.addBot = function (loginDetails, managerEvents, retries) {
+BotManager.prototype.addBot = function (loginDetails, managerEvents, type) {
 	var _this = this;
 
 	//Create instances
@@ -63,7 +63,8 @@ BotManager.prototype.addBot = function (loginDetails, managerEvents, retries) {
 					loginInfo: loginDetails,
 					apiKey: manager.apiKey,
 					steamid: client.steamID.getSteamID64(),
-					botIndex: _this.bots.length
+					botIndex: _this.bots.length,
+					type: type
 				});
 				resolve(_this.bots[botArrayLength - 1]);
 			});

@@ -18,7 +18,7 @@ let BotManager = function(options) {
    this.jobConstraints = {};
 };
 
-BotManager.prototype.addBot = function(loginDetails, managerEvents, retries) {
+BotManager.prototype.addBot = function(loginDetails, managerEvents, type) {
 	//Create instances
 	let client = new SteamUser();
 	let manager = new TradeOfferManager({
@@ -55,7 +55,8 @@ BotManager.prototype.addBot = function(loginDetails, managerEvents, retries) {
 					loginInfo: loginDetails,
 					apiKey: manager.apiKey,
 					steamid: client.steamID.getSteamID64(),
-					botIndex: this.bots.length
+					botIndex: this.bots.length,
+					type: type
 				});
 				resolve(this.bots[botArrayLength - 1]);
 			});
