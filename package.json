@@ -1,6 +1,6 @@
 {
   "name": "steam-bot-manager",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Manage multiple Steam bots",
   "main": "distribution/index.js",
   "scripts": {

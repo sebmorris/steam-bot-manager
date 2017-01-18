@@ -187,6 +187,8 @@ BotManager.prototype.testConstraint = function(constraintName, args, botIndex) {
 BotManager.prototype.botIndexFromSteamid = function(steamid) {
 	return this.bots.reduce((prev, curr, i) => {
 	  if (curr.steamid === steamid) return i;
+	  else if (prev) return prev;
+	  else return undefined;
 	}, undefined);
 };
 
