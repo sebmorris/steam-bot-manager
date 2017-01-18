@@ -190,6 +190,10 @@ BotManager.prototype.botIndexFromSteamid = function(steamid) {
 	}, undefined);
 };
 
+BotManager.prototype.botSteamidFromIndex = function(botIndex) {
+	return this.bots[botIndex].steamid;
+};
+
 BotManager.prototype.openJobs = function() {
 	return this.botJobs.length;
 };
