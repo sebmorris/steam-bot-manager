@@ -14,8 +14,6 @@ let BotManager = function(options) {
 	this.cancelTime = options.cancelTime || 180000;
 
    this.bots = [];
-   this.botJobs = [];
-   this.jobConstraints = {};
 };
 
 BotManager.prototype.addBot = function(loginDetails, managerEvents, type) {
@@ -28,24 +26,30 @@ BotManager.prototype.addBot = function(loginDetails, managerEvents, type) {
 		cancelTime: this.cancelTime
 	});
 	let community = new SteamCommunity();
-   return new Promise((resolve, reject) => {
+	return new Promise((resolve, reject) => {
 		if (managerEvents) {
-         managerEvents.forEach((event) => manager.on(event.name, event.cb));
-         console.log('Set manager events:\n\t- ' + managerEvents.map((event) => event.name));
-      }
+			managerEvents.forEach((event) => manager.on(event.name, event.cb));
+			console.log('Set manager events:\n\t- ' + managerEvents.map((event) => event.name));
+		}
 
-      loginDetails.twoFactorCode = SteamTotp.getAuthCode(loginDetails.shared);
+		loginDetails.twoFactorCode = SteamTotp.getAuthCode(loginDetails.shared);
 
-      client.logOn(loginDetails);
-      client.on('loggedOn', (details) => { if (details.eresult !== 1) return reject(details); });
+		client.logOn(loginDetails);
+		client.on('loggedOn', (details) => {
+			console.log('loggedOn event');
+			if (details.eresult !== 1) return reject(details);
+		});
 
 		client.on('webSession', function(sessionID, cookies) {
+			console.log('webSession event');
 			community.startConfirmationChecker(30000, loginDetails.identity);
 			community.setCookies(cookies);
 			resolve(cookies);
 		});
-	}).then((cookies) => {
+	})
+	.then((cookies) => {
 		return new Promise((resolve, reject) => {
+			console.log(`${this.bots.length} bots logged in`);
 			manager.setCookies(cookies, (err) => {
 				if (err) reject(err);
 				const botArrayLength = this.bots.push({
@@ -86,7 +90,7 @@ BotManager.prototype.processJobs = function(jobsToProcess) {
    if (!jobsToProcess) jobsToProcess = 1;
 	let jobProcesses = [];
    for (let i = 0; i < jobsToProcess; i++) {
-      jobProcesses.push(this.processJob(this.botJobs.shift()));
+	  jobProcesses.push(this.processJob(this.botJobs.shift()));
    }
 	return jobProcesses;
 };
@@ -123,12 +127,12 @@ BotManager.prototype.processJob = function({type, multi, constraints, args, fn, 
 		console.log('A job of type: ' + type + ' just completed\n\t- ' + res);
 		if (bots && constraints) {
 			bots.forEach((botIndex) => {
-	 			constraints.forEach((constraintName) => {
-	 				let constraint = this.jobConstraints[constraintName];
-	 				if (constraint) {
-	 					if (constraint.succeededChange(args) !== undefined)
-	 						constraint.botConstraintValues[botIndex] += constraint.succeededChange(args);
-	 				}
+				constraints.forEach((constraintName) => {
+					let constraint = this.jobConstraints[constraintName];
+					if (constraint) {
+						if (constraint.succeededChange(args) !== undefined)
+							constraint.botConstraintValues[botIndex] += constraint.succeededChange(args);
+					}
 				});
 			});
 		}
@@ -136,12 +140,12 @@ BotManager.prototype.processJob = function({type, multi, constraints, args, fn, 
 	.catch((err) => {
 		console.log('There was an error completing a job of type: ' + type + '\n\t- ' + err);
 		bots.forEach((botIndex) => {
- 			constraints.forEach((constraintName) => {
- 				let constraint = this.jobConstraints[constraintName];
- 				if (constraint) {
- 					if (constraint.failedChange(args) !== undefined)
- 						constraint.botConstraintValues[botIndex] += constraint.failedChange(args);
- 				}
+			constraints.forEach((constraintName) => {
+				let constraint = this.jobConstraints[constraintName];
+				if (constraint) {
+					if (constraint.failedChange(args) !== undefined)
+						constraint.botConstraintValues[botIndex] += constraint.failedChange(args);
+				}
 			});
 		});
 		throw err;

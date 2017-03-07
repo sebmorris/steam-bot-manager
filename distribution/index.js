@@ -14,8 +14,6 @@ var BotManager = function BotManager(options) {
 	this.cancelTime = options.cancelTime || 180000;
 
 	this.bots = [];
-	this.botJobs = [];
-	this.jobConstraints = {};
 };
 
 BotManager.prototype.addBot = function (loginDetails, managerEvents, type) {
@@ -44,16 +42,19 @@ BotManager.prototype.addBot = function (loginDetails, managerEvents, type) {
 
 		client.logOn(loginDetails);
 		client.on('loggedOn', function (details) {
+			console.log('loggedOn event');
 			if (details.eresult !== 1) return reject(details);
 		});
 
 		client.on('webSession', function (sessionID, cookies) {
+			console.log('webSession event');
 			community.startConfirmationChecker(30000, loginDetails.identity);
 			community.setCookies(cookies);
 			resolve(cookies);
 		});
 	}).then(function (cookies) {
 		return new Promise(function (resolve, reject) {
+			console.log(_this.bots.length + ' bots logged in');
 			manager.setCookies(cookies, function (err) {
 				if (err) reject(err);
 				var botArrayLength = _this.bots.push({
