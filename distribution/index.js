@@ -10,7 +10,6 @@ var BotManager = function BotManager(options) {
 	if (!options) options = {};
 
 	this.domain = options.domain || 'localhost';
-	this.language = options.language || 'en';
 	this.cancelTime = options.cancelTime || 180000;
 
 	this.bots = [];
@@ -24,7 +23,6 @@ BotManager.prototype.addBot = function (loginDetails, managerEvents, type) {
 	var manager = new TradeOfferManager({
 		steam: client,
 		domain: this.domain,
-		language: this.language,
 		cancelTime: this.cancelTime
 	});
 	var community = new SteamCommunity();
@@ -42,19 +40,16 @@ BotManager.prototype.addBot = function (loginDetails, managerEvents, type) {
 
 		client.logOn(loginDetails);
 		client.on('loggedOn', function (details) {
-			console.log('loggedOn event');
 			if (details.eresult !== 1) return reject(details);
 		});
 
 		client.on('webSession', function (sessionID, cookies) {
-			console.log('webSession event');
 			community.startConfirmationChecker(30000, loginDetails.identity);
 			community.setCookies(cookies);
 			resolve(cookies);
 		});
 	}).then(function (cookies) {
 		return new Promise(function (resolve, reject) {
-			console.log(_this.bots.length + ' bots logged in');
 			manager.setCookies(cookies, function (err) {
 				if (err) reject(err);
 				var botArrayLength = _this.bots.push({
