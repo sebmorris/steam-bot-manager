@@ -10,7 +10,7 @@ let BotManager = function(options) {
 	if (!options) options = {};
 
 	this.domain = options.domain || 'localhost';
-	this.cancelTime = options.cancelTime || 180000;
+	this.cancelTime = options.cancelTime || 420000;
 
    this.bots = [];
 };
