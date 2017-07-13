@@ -12,7 +12,7 @@ let BotManager = function(options) {
 	this.domain = options.domain || 'localhost';
 	this.cancelTime = options.cancelTime || 420000;
 
-   this.bots = [];
+	this.bots = [];
 };
 
 BotManager.prototype.addBot = function(loginDetails, managerEvents, type) {
@@ -38,7 +38,7 @@ BotManager.prototype.addBot = function(loginDetails, managerEvents, type) {
 		});
 
 		client.on('webSession', function(sessionID, cookies) {
-			community.startConfirmationChecker(30000, loginDetails.identity);
+			community.startConfirmationChecker(10000, loginDetails.identity);
 			community.setCookies(cookies);
 			resolve(cookies);
 		});

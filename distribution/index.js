@@ -44,7 +44,7 @@ BotManager.prototype.addBot = function (loginDetails, managerEvents, type) {
 		});
 
 		client.on('webSession', function (sessionID, cookies) {
-			community.startConfirmationChecker(30000, loginDetails.identity);
+			community.startConfirmationChecker(10000, loginDetails.identity);
 			community.setCookies(cookies);
 			resolve(cookies);
 		});
