@@ -1,6 +1,6 @@
 {
   "name": "steam-bot-manager",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Manage multiple Steam bots",
   "main": "distribution/index.js",
   "scripts": {
@@ -18,7 +18,6 @@
   },
   "homepage": "https://github.com/sebmorris/steam-bot-manager#readme",
   "dependencies": {
-    "steam-inventory-api": "^1.0.6",
     "steam-totp": "^1.4.0",
     "steam-tradeoffer-manager": "^2.5.0",
     "steam-user": "^3.14.0",

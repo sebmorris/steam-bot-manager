@@ -11,6 +11,7 @@ let BotManager = function(options) {
 
 	this.domain = options.domain || 'localhost';
 	this.cancelTime = options.cancelTime || 420000;
+  this.inventoryApi = options.inventoryApi;
 
 	this.bots = [];
 };
@@ -65,7 +66,12 @@ BotManager.prototype.addBot = function(loginDetails, managerEvents, type) {
 
 BotManager.prototype.loadInventories = function(appid, contextid, tradableOnly) {
 	return Promise.all(this.bots.map((bot, i) => {
-		return SteamInventoryAPI.getInventory(bot.steamid, appid, contextid, tradableOnly)
+    return this.inventoryApi.get({
+      appid,
+      contextid,
+      steamid: bot.steamid,
+      tradable: tradableOnly,
+    })
 		.then((inventory) => {
 			inventory.forEach((item) => item.botIndex = i);
 			return inventory;
