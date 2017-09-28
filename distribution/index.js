@@ -78,7 +78,8 @@ BotManager.prototype.loadInventories = function (appid, contextid, tradableOnly)
 			contextid: contextid,
 			steamid: bot.steamid,
 			tradable: tradableOnly
-		}).then(function (inventory) {
+		}).then(function (res) {
+			var inventory = res.items;
 			inventory.forEach(function (item) {
 				return item.botIndex = i;
 			});
