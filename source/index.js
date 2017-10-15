@@ -12,6 +12,8 @@ let BotManager = function(options) {
 	this.domain = options.domain || 'localhost';
 	this.cancelTime = options.cancelTime || 420000;
   this.inventoryApi = options.inventoryApi;
+  this.retryingLogin = false;
+  this.loggedIn = false;
 
 	this.bots = [];
 };
@@ -27,13 +29,19 @@ BotManager.prototype.addBot = function(loginDetails, managerEvents, type) {
 	let community = new SteamCommunity();
 	return new Promise((resolve, reject) => {
 		if (managerEvents) {
-			managerEvents.forEach((event) => manager.on(event.name, event.cb));
+      manager.on('sessionExpired', (err) => {
+        if (this.retryingLogin) return;
+        console.log('Bot session expired', err);
+        console.log('Retrying login');
+        this.retryLogin();
+      });
+      managerEvents.forEach((event) => manager.on(event.name, event.cb));
 			console.log('Set manager events:\n\t- ' + managerEvents.map((event) => event.name));
 		}
 
 		loginDetails.twoFactorCode = SteamTotp.getAuthCode(loginDetails.shared);
 
-		client.logOn(loginDetails);
+		client.logOn();
 		client.on('loggedOn', (details) => {
 			if (details.eresult !== 1) return reject(details);
 		});
@@ -58,10 +66,53 @@ BotManager.prototype.addBot = function(loginDetails, managerEvents, type) {
 					botIndex: this.bots.length,
 					type: type
 				});
+        this.loggedIn = true;
+        this.retryingLogin = false;
 				resolve(this.bots[botArrayLength - 1]);
 			});
 		});
 	});
+};
+
+BotManager.prototype.retryLogin = function() {
+  this.retryingLogin = true;
+
+  this.client.logOn();
+  function login() {
+    return new Promise((resolve, reject) => {
+      this.client.on('loggedOn', (details) => {
+        if (details.eresult !== 1) return reject(details);
+      });
+
+      client.on('webSession', function(sessionID, cookies) {
+        community.setCookies(cookies);
+        resolve(cookies);
+      });
+    });
+    .then((cookies) => {
+      return new Promise((resolve, reject) => {
+        manager.setCookies(cookies, (err) => {
+          if (err) reject(err);
+          this.loggedIn = true;
+          this.retryingLogin = false;
+        });
+      });
+    });
+  }
+
+  login()
+  .catch((err) => {
+    console.log('Error logging back in, retrying in 1 min');
+    return new Promise((resolve) => {
+      setTimeout(resolve, 60 * 1000);
+    })
+    .then(() => retryLogin);
+  })
+  .then((res) => {
+    console.log('Bot logged back in')
+    this.retryLogin = false;
+    this.loggedIn = true;
+  });
 };
 
 BotManager.prototype.loadInventories = function(appid, contextid, tradableOnly) {
@@ -69,6 +120,7 @@ BotManager.prototype.loadInventories = function(appid, contextid, tradableOnly) 
     return this.inventoryApi.get({
       appid,
       contextid,
+      retries: 3,
       steamid: bot.steamid,
       tradable: tradableOnly,
     })
